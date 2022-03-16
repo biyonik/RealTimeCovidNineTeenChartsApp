@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using RealTimeCovidNineTeenChartsApp.API.Context;
+using RealTimeCovidNineTeenChartsApp.API.Hubs;
+using RealTimeCovidNineTeenChartsApp.API.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +11,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+builder.Services.AddSignalR();
+
+builder.Services.AddScoped<CovidService>();
 
 var app = builder.Build();
 
@@ -21,5 +34,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<CovidHub>("/CovidHub");
 
 app.Run();
